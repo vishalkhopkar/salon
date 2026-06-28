@@ -13,6 +13,10 @@ from geopy.geocoders import Nominatim
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("find_salon")
+# basicConfig() is a no-op (level included) when a handler already exists on the root
+# logger - which Lambda's runtime pre-attaches before this module loads. Setting the
+# level directly on this logger works regardless of what the root ends up at.
+logger.setLevel(logging.INFO)
 
 LISTING_URL = "https://coupons-2save.com/greatclips"
 REQUEST_TIMEOUT = 20
