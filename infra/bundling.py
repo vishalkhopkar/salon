@@ -21,7 +21,7 @@ class PipLocalBundling:
         self.entry_files = entry_files
         self.python_version = python_version
 
-    def try_bundle(self, output_dir, **kwargs):
+    def try_bundle(self, output_dir, *args, **kwargs):
         requirements = os.path.join(self.source_dir, "requirements.txt")
         if os.path.exists(requirements):
             abi = "cp" + self.python_version.replace(".", "")
