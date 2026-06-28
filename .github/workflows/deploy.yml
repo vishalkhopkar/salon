@@ -36,6 +36,9 @@ jobs:
         working-directory: infra
         run: pip install -r requirements.txt
 
+      - name: Write Google Maps API key config
+        run: printf 'window.GOOGLE_MAPS_API_KEY = "%s";\n' "${{ secrets.GOOGLE_MAPS_API_KEY }}" > web/maps-api-key.js
+
       - name: CDK bootstrap (one-time per account/region, safe to repeat)
         working-directory: infra
         run: npx aws-cdk@2 bootstrap

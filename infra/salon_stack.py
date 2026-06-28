@@ -12,6 +12,7 @@ from aws_cdk import (
     aws_events_targets as targets,
     aws_lambda as _lambda,
     aws_s3 as s3,
+    aws_s3_deployment as s3_deploy,
 )
 from constructs import Construct
 
@@ -19,6 +20,7 @@ from bundling import PipLocalBundling
 
 INFRA_DIR = os.path.dirname(os.path.abspath(__file__))
 SCRIPT_DIR = os.path.normpath(os.path.join(INFRA_DIR, ".."))
+WEB_DIR = os.path.join(SCRIPT_DIR, "web")
 OBJECT_KEY = "salons.json"
 PYTHON_VERSION = "3.12"
 
@@ -44,7 +46,7 @@ class SalonStack(Stack):
             handler="find_salon.lambda_handler",
             code=_lambda.Code.from_asset(
                 SCRIPT_DIR,
-                exclude=["infra", "salons.json", "salons.json.bak_pre_expiry", "__pycache__", "*.pyc"],
+                exclude=["infra", "web", "salons.json", "salons.json.bak_pre_expiry", "__pycache__", "*.pyc"],
                 bundling=BundlingOptions(
                     image=_lambda.Runtime.PYTHON_3_12.bundling_image,
                     local=PipLocalBundling(SCRIPT_DIR, ["find_salon.py"], PYTHON_VERSION),
@@ -60,16 +62,21 @@ class SalonStack(Stack):
         bucket.grant_read(generator_fn)
         bucket.grant_put(generator_fn)
 
-        # This distribution only ever serves one object, so every request path - "/",
-        # "/salons", anything - is rewritten at the edge to fetch that fixed S3 key.
+        # The distribution serves the static site at "/" and the data feed at "/salons" -
+        # this rewrites each to the actual S3 key behind it. Any other path (e.g.
+        # "/index.html" directly) passes through unchanged.
         rewrite_to_object_fn = cloudfront.Function(
             self, "RewriteToObjectKey",
             code=cloudfront.FunctionCode.from_inline(
-                f"function handler(event) {{\n"
-                f"    var request = event.request;\n"
-                f"    request.uri = '/{OBJECT_KEY}';\n"
-                f"    return request;\n"
-                f"}}"
+                "function handler(event) {\n"
+                "    var request = event.request;\n"
+                "    if (request.uri === '/salons') {\n"
+                f"        request.uri = '/{OBJECT_KEY}';\n"
+                "    } else if (request.uri === '/') {\n"
+                "        request.uri = '/index.html';\n"
+                "    }\n"
+                "    return request;\n"
+                "}"
             ),
             runtime=cloudfront.FunctionRuntime.JS_2_0,
         )
@@ -102,6 +109,23 @@ class SalonStack(Stack):
             ),
         )
 
+        # prune defaults to True, which deletes any object in the bucket not present in
+        # this deployment's sources - since salons.json lives in the same bucket but is
+        # written by the generator Lambda (not this deployment), that default would wipe
+        # it out on every `cdk deploy`. prune=False scopes this to "add/update only".
+        #
+        # No content_type override here (unlike a single-file deployment) - it would force
+        # every file in this source to the same MIME type, which is wrong for a mix of
+        # .html/.css/.js. The underlying deploy step detects content-type per file extension.
+        s3_deploy.BucketDeployment(
+            self, "DeploySite",
+            sources=[s3_deploy.Source.asset(WEB_DIR, exclude=["maps-api-key.example.js"])],
+            destination_bucket=bucket,
+            prune=False,
+            distribution=distribution,
+            distribution_paths=["/", "/index.html", "/style.css", "/app.js", "/maps-api-key.js"],
+        )
+
         # Runs daily at 00:00 UTC - adjust the hour if you want local-midnight in a
         # specific timezone instead.
         rule = events.Rule(
@@ -110,6 +134,7 @@ class SalonStack(Stack):
         )
         rule.add_target(targets.LambdaFunction(generator_fn))
 
+        CfnOutput(self, "SiteUrl", value=f"https://{distribution.distribution_domain_name}/")
         CfnOutput(self, "SalonsUrl", value=f"https://{distribution.distribution_domain_name}/salons")
         CfnOutput(self, "BucketName", value=bucket.bucket_name)
         CfnOutput(self, "GeneratorFunctionName", value=generator_fn.function_name)

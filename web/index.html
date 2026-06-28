@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Current GreatClips Offers</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Noto+Sans+JP:wght@300;400;500&display=swap"
+  rel="stylesheet"
+/>
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <h1><span class="fan">&#129356;</span> Current GreatClips Offers</h1>
+  <p class="subtitle">現在のオファー &mdash; a map of great haircuts, great prices</p>
+</header>
+<div class="wave-band"></div>
+
+<div id="info-banner">
+  <span>Hover and click on the marker to visit the offer page</span>
+</div>
+
+<div id="failure-banner" role="alert">
+  <span>Failed to retrieve current offers</span>
+  <button id="banner-close" aria-label="Dismiss">&times;</button>
+</div>
+
+<main class="content-wrap">
+  <section class="map-section panel">
+    <div id="map"></div>
+  </section>
+
+  <div class="side-column">
+    <aside class="legend-section panel">
+      <h2>Price Legend</h2>
+      <ul class="legend-list">
+        <li><span class="swatch" style="background: var(--band-violet);"></span> Below $7.99</li>
+        <li><span class="swatch" style="background: var(--band-blue);"></span> $7.99 &ndash; $9.98</li>
+        <li><span class="swatch" style="background: var(--band-green);"></span> $9.99 &ndash; $12.98</li>
+        <li><span class="swatch" style="background: var(--band-yellow);"></span> $12.99 &ndash; $14.98</li>
+        <li><span class="swatch" style="background: var(--band-red);"></span> $14.99 and above</li>
+      </ul>
+      <p class="legend-note">Markers reflect the latest nightly refresh of active Great Clips offers.</p>
+    </aside>
+
+    <section class="report-section panel">
+      <p>This website does not have all possible offers, but all offers found on this website should be valid. If you find an invalid offer, please fill out the form below and submit.</p>
+      <form id="report-form" class="report-form">
+        <div class="report-form-row">
+          <label for="invalid-offer-url">Invalid offer URL:</label>
+          <input type="url" id="invalid-offer-url" name="invalid-offer-url" placeholder="https://offers.greatclips.com/..." required />
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+      <p id="report-confirmation" class="report-confirmation"></p>
+    </section>
+  </div>
+</main>
+
+<div class="flex-spacer"></div>
+
+<div class="wave-band"></div>
+<footer class="site-footer">
+  Offers refreshed nightly &middot; Data sourced from Great Clips coupon listings
+</footer>
+
+<script src="maps-api-key.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

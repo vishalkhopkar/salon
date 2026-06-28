@@ -1,0 +1,277 @@
+:root {
+  --washi: #f3ead9;
+  --washi-light: #faf5ea;
+  --indigo: #1f4156;
+  --indigo-dark: #142a37;
+  --vermillion: #b7410e;
+  --gold: #c9a227;
+  --sakura: #f3c6c6;
+  --matcha: #5b7553;
+  --fuji: #7d5a8c;
+  --sumi: #2b2118;
+
+  --band-violet: #7d5a8c;
+  --band-blue: #27506b;
+  --band-green: #5b7553;
+  --band-yellow: #c9a227;
+  --band-red: #b7410e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--washi);
+  color: var(--sumi);
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+h1, h2 {
+  font-family: "Shippori Mincho", serif;
+}
+
+/* ---------- decorative wave band (seigaiha-style) ---------- */
+.wave-band {
+  height: 18px;
+  background-image:
+    radial-gradient(circle at 0 100%, transparent 0, transparent 7px, var(--gold) 7px, var(--gold) 9px, transparent 9px),
+    radial-gradient(circle at 18px 100%, transparent 0, transparent 7px, var(--gold) 7px, var(--gold) 9px, transparent 9px);
+  background-size: 36px 18px;
+  background-repeat: repeat-x;
+  background-color: var(--indigo-dark);
+}
+
+/* ---------- header ---------- */
+header.site-header {
+  background: linear-gradient(180deg, var(--indigo), var(--indigo-dark));
+  color: var(--washi-light);
+  text-align: center;
+  padding: 1.75rem 1rem 1.25rem;
+}
+
+header.site-header h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+header.site-header .fan {
+  display: inline-block;
+  transform: rotate(15deg);
+}
+
+header.site-header .subtitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  color: var(--sakura);
+  letter-spacing: 0.05em;
+}
+
+/* ---------- failure banner ---------- */
+#failure-banner {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--vermillion);
+  color: var(--washi-light);
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+}
+
+#failure-banner.show { display: flex; }
+
+#failure-banner button {
+  background: transparent;
+  border: 1px solid var(--washi-light);
+  color: var(--washi-light);
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* ---------- info banner (static usage hint) ---------- */
+#info-banner {
+  text-align: center;
+  background: var(--gold);
+  color: var(--sumi);
+  padding: 0.6rem 1.25rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* ---------- main content ---------- */
+main.content-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  align-items: stretch;
+}
+
+.flex-spacer {
+  flex: 1;
+}
+
+.panel {
+  background: var(--washi-light);
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(43, 33, 24, 0.12);
+}
+
+.map-section {
+  flex: 3 1 600px;
+  padding: 0.75rem;
+}
+
+#map {
+  width: 100%;
+  height: 65vh;
+  min-height: 420px;
+  border-radius: 4px;
+  border: 1px solid var(--gold);
+}
+
+.side-column {
+  flex: 1 1 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.legend-section {
+  padding: 1rem 1.25rem;
+}
+
+.legend-section h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+  color: var(--indigo);
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 0.4rem;
+}
+
+.legend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0;
+  font-size: 0.95rem;
+}
+
+.swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid var(--sumi);
+  flex-shrink: 0;
+}
+
+.legend-note {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--gold);
+  font-size: 0.8rem;
+  color: #5a4f3f;
+}
+
+/* ---------- report-offer section ---------- */
+.report-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  padding: 1.25rem 1.25rem;
+}
+
+.report-section p {
+  margin: 0 0 1rem;
+}
+
+.report-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+.report-form-row label {
+  font-weight: 500;
+  color: var(--indigo);
+}
+
+.report-form-row input[type="url"] {
+  flex: 1 1 280px;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: var(--washi-light);
+  color: var(--sumi);
+}
+
+.report-form button {
+  background: var(--indigo);
+  color: var(--washi-light);
+  border: none;
+  border-radius: 4px;
+  padding: 0.55rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.report-form button:hover {
+  background: var(--indigo-dark);
+}
+
+.report-confirmation {
+  margin: 0.75rem 0 0;
+  color: var(--matcha);
+  font-weight: 500;
+  min-height: 1.2em;
+}
+
+/* ---------- footer ---------- */
+footer.site-footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.8rem;
+  color: #5a4f3f;
+  background: var(--washi-light);
+}
+
+/* ---------- responsive: stack below map on smaller screens ---------- */
+@media (max-width: 860px) {
+  main.content-wrap {
+    flex-direction: column;
+  }
+  .map-section, .side-column {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+  #map {
+    height: 55vh;
+  }
+}
+
+.info-window {
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 0.9rem;
+  color: var(--sumi);
+}
