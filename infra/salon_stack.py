@@ -74,13 +74,24 @@ class SalonStack(Stack):
             runtime=cloudfront.FunctionRuntime.JS_2_0,
         )
 
+        # CACHING_OPTIMIZED doesn't vary its cache key by the Origin header, so different
+        # edge locations independently cache whichever response (with or without the CORS
+        # header) happened to hit them first - including Origin here fixes that.
+        cors_aware_cache_policy = cloudfront.CachePolicy(
+            self, "CorsAwareCachePolicy",
+            header_behavior=cloudfront.CacheHeaderBehavior.allow_list("Origin"),
+            default_ttl=Duration.hours(24),
+            min_ttl=Duration.seconds(0),
+            max_ttl=Duration.days(365),
+        )
+
         distribution = cloudfront.Distribution(
             self, "SalonsDistribution",
             default_behavior=cloudfront.BehaviorOptions(
                 origin=origins.S3BucketOrigin.with_origin_access_control(bucket),
                 viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                 allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
-                cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED,
+                cache_policy=cors_aware_cache_policy,
                 response_headers_policy=cloudfront.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS,
                 function_associations=[
                     cloudfront.FunctionAssociation(
