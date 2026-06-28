@@ -195,7 +195,10 @@ def write_json(results):
     if S3_BUCKET:
         import boto3
 
-        boto3.client("s3").upload_file(OUTPUT_JSON, S3_BUCKET, S3_KEY)
+        boto3.client("s3").upload_file(
+            OUTPUT_JSON, S3_BUCKET, S3_KEY,
+            ExtraArgs={"ContentType": "application/json"},
+        )
 
 
 def load_existing_results():
