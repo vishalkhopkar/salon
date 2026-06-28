@@ -6,7 +6,8 @@ from aws_cdk import (
     Duration,
     RemovalPolicy,
     Stack,
-    aws_apigateway as apigateway,
+    aws_cloudfront as cloudfront,
+    aws_cloudfront_origins as origins,
     aws_events as events,
     aws_events_targets as targets,
     aws_lambda as _lambda,
@@ -18,7 +19,6 @@ from bundling import PipLocalBundling
 
 INFRA_DIR = os.path.dirname(os.path.abspath(__file__))
 SCRIPT_DIR = os.path.normpath(os.path.join(INFRA_DIR, ".."))
-READER_DIR = os.path.join(INFRA_DIR, "lambda_reader")
 OBJECT_KEY = "salons.json"
 PYTHON_VERSION = "3.12"
 
@@ -60,31 +60,36 @@ class SalonStack(Stack):
         bucket.grant_read(generator_fn)
         bucket.grant_put(generator_fn)
 
-        reader_fn = _lambda.Function(
-            self, "ReaderFunction",
-            runtime=_lambda.Runtime.PYTHON_3_12,
-            architecture=_lambda.Architecture.X86_64,
-            handler="reader.handler",
-            code=_lambda.Code.from_asset(READER_DIR),
-            timeout=Duration.seconds(10),
-            memory_size=128,
-            environment={
-                "SALONS_BUCKET_NAME": bucket.bucket_name,
-                "SALONS_OBJECT_KEY": OBJECT_KEY,
-            },
+        # This distribution only ever serves one object, so every request path - "/",
+        # "/salons", anything - is rewritten at the edge to fetch that fixed S3 key.
+        rewrite_to_object_fn = cloudfront.Function(
+            self, "RewriteToObjectKey",
+            code=cloudfront.FunctionCode.from_inline(
+                f"function handler(event) {{\n"
+                f"    var request = event.request;\n"
+                f"    request.uri = '/{OBJECT_KEY}';\n"
+                f"    return request;\n"
+                f"}}"
+            ),
+            runtime=cloudfront.FunctionRuntime.JS_2_0,
         )
-        bucket.grant_read(reader_fn)
 
-        api = apigateway.RestApi(
-            self, "SalonsApi",
-            rest_api_name="salons-api",
-            default_cors_preflight_options=apigateway.CorsOptions(
-                allow_origins=apigateway.Cors.ALL_ORIGINS,
-                allow_methods=["GET"],
+        distribution = cloudfront.Distribution(
+            self, "SalonsDistribution",
+            default_behavior=cloudfront.BehaviorOptions(
+                origin=origins.S3BucketOrigin.with_origin_access_control(bucket),
+                viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
+                cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED,
+                response_headers_policy=cloudfront.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS,
+                function_associations=[
+                    cloudfront.FunctionAssociation(
+                        event_type=cloudfront.FunctionEventType.VIEWER_REQUEST,
+                        function=rewrite_to_object_fn,
+                    ),
+                ],
             ),
         )
-        salons_resource = api.root.add_resource("salons")
-        salons_resource.add_method("GET", apigateway.LambdaIntegration(reader_fn))
 
         # Runs daily at 00:00 UTC - adjust the hour if you want local-midnight in a
         # specific timezone instead.
@@ -94,6 +99,6 @@ class SalonStack(Stack):
         )
         rule.add_target(targets.LambdaFunction(generator_fn))
 
-        CfnOutput(self, "ApiUrl", value=f"{api.url}salons")
+        CfnOutput(self, "SalonsUrl", value=f"https://{distribution.distribution_domain_name}/salons")
         CfnOutput(self, "BucketName", value=bucket.bucket_name)
         CfnOutput(self, "GeneratorFunctionName", value=generator_fn.function_name)
