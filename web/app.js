@@ -65,22 +65,18 @@ function renderMarkers() {
       title: salon.address
     });
 
-    marker.addListener("mouseover", function () {
+    var showInfo = function () {
       var typeLabel = salon.is_generic === "true" ? "Generic / region-wide offer" : "Specific salon";
+      var offerUrl = "https://offers.greatclips.com/" + salon.stub;
       infoWindow.setContent(
         '<div class="info-window"><strong>' + salon.address + '</strong><br>' +
-        "$" + salon.value.toFixed(2) + " &mdash; " + typeLabel + "</div>"
+        '<a href="' + offerUrl + '" target="_blank" rel="noopener">$' + salon.value.toFixed(2) + '</a>' +
+        ' &mdash; ' + typeLabel + '</div>'
       );
       infoWindow.open(map, marker);
-    });
-
-    marker.addListener("mouseout", function () {
-      infoWindow.close();
-    });
-
-    marker.addListener("click", function () {
-      window.open("https://offers.greatclips.com/" + salon.stub, "_blank", "noopener");
-    });
+    };
+    marker.addListener("mouseover", showInfo);
+    marker.addListener("click", showInfo);
   });
 }
 
@@ -124,5 +120,10 @@ document.getElementById("banner-close").addEventListener("click", function () {
 document.getElementById("report-form").addEventListener("submit", function (e) {
   e.preventDefault();
   document.getElementById("report-confirmation").textContent = "Thanks for the report — we'll take a look.";
-  document.getElementById("invalid-offer-url").value = "";
+  document.getElementById("report-message").value = "";
+  document.getElementById("report-char-count").textContent = "0";
+});
+
+document.getElementById("report-message").addEventListener("input", function () {
+  document.getElementById("report-char-count").textContent = this.value.length;
 });

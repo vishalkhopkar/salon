@@ -129,11 +129,12 @@ main.content-wrap {
 .map-section {
   flex: 3 1 600px;
   padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
 }
 
 #map {
-  width: 100%;
-  height: 65vh;
+  flex: 1;
   min-height: 420px;
   border-radius: 4px;
   border: 1px solid var(--gold);
@@ -197,32 +198,37 @@ main.content-wrap {
   padding: 1.25rem 1.25rem;
 }
 
-.report-section p {
-  margin: 0 0 1rem;
-}
-
-.report-form-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.85rem;
-}
-
-.report-form-row label {
-  font-weight: 500;
+.report-section h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
   color: var(--indigo);
 }
 
-.report-form-row input[type="url"] {
-  flex: 1 1 280px;
+.report-subheader {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: #5a4f3f;
+}
+
+.report-form textarea {
+  width: 100%;
+  resize: vertical;
   padding: 0.5rem 0.7rem;
   border: 1px solid var(--gold);
   border-radius: 4px;
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   background: var(--washi-light);
   color: var(--sumi);
+  margin-bottom: 0.4rem;
+  min-height: 6rem;
+}
+
+.report-char-count {
+  text-align: right;
+  font-size: 0.75rem;
+  color: #5a4f3f;
+  margin-bottom: 0.75rem;
 }
 
 .report-form button {
@@ -247,15 +253,6 @@ main.content-wrap {
   min-height: 1.2em;
 }
 
-/* ---------- footer ---------- */
-footer.site-footer {
-  text-align: center;
-  padding: 1rem;
-  font-size: 0.8rem;
-  color: #5a4f3f;
-  background: var(--washi-light);
-}
-
 /* ---------- responsive: stack below map on smaller screens ---------- */
 @media (max-width: 860px) {
   main.content-wrap {
@@ -274,4 +271,13 @@ footer.site-footer {
   font-family: "Noto Sans JP", sans-serif;
   font-size: 0.9rem;
   color: var(--sumi);
+}
+
+.info-window a {
+  color: var(--indigo);
+  text-decoration: underline;
+}
+
+.info-window a:hover {
+  color: var(--vermillion);
 }

@@ -26,7 +26,7 @@
 <div class="wave-band"></div>
 
 <div id="info-banner">
-  <span>Hover and click on the marker to visit the offer page</span>
+  <span>Hover over the marker and see the offer</span>
 </div>
 
 <div id="failure-banner" role="alert">
@@ -53,12 +53,11 @@
     </aside>
 
     <section class="report-section panel">
-      <p>This website does not have all possible offers, but all offers found on this website should be valid. If you find an invalid offer, please fill out the form below and submit.</p>
+      <h2>Report a problem with the website</h2>
+      <p class="report-subheader">Report issues like invalid offers, offers not loading up, etc.</p>
       <form id="report-form" class="report-form">
-        <div class="report-form-row">
-          <label for="invalid-offer-url">Invalid offer URL:</label>
-          <input type="url" id="invalid-offer-url" name="invalid-offer-url" placeholder="https://offers.greatclips.com/..." required />
-        </div>
+        <textarea id="report-message" name="report-message" maxlength="300" rows="5" placeholder="Describe the issue..."></textarea>
+        <div class="report-char-count"><span id="report-char-count">0</span> / 300</div>
         <button type="submit">Submit</button>
       </form>
       <p id="report-confirmation" class="report-confirmation"></p>
@@ -69,9 +68,6 @@
 <div class="flex-spacer"></div>
 
 <div class="wave-band"></div>
-<footer class="site-footer">
-  Offers refreshed nightly &middot; Data sourced from Great Clips coupon listings
-</footer>
 
 <script src="maps-api-key.js"></script>
 <script src="app.js"></script>

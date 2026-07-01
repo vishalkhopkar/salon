@@ -11,8 +11,11 @@ from aws_cdk import (
     aws_events as events,
     aws_events_targets as targets,
     aws_lambda as _lambda,
+    aws_lambda_destinations as destinations,
     aws_s3 as s3,
     aws_s3_deployment as s3_deploy,
+    aws_sns as sns,
+    aws_sns_subscriptions as subs,
 )
 from constructs import Construct
 
@@ -23,6 +26,7 @@ SCRIPT_DIR = os.path.normpath(os.path.join(INFRA_DIR, ".."))
 WEB_DIR = os.path.join(SCRIPT_DIR, "web")
 OBJECT_KEY = "salons.json"
 PYTHON_VERSION = "3.12"
+NOTIFICATION_EMAIL = "vishalkhopkar20@gmail.com"
 
 
 class SalonStack(Stack):
@@ -61,6 +65,13 @@ class SalonStack(Stack):
         )
         bucket.grant_read(generator_fn)
         bucket.grant_put(generator_fn)
+
+        notification_topic = sns.Topic(self, "GeneratorNotifications")
+        notification_topic.add_subscription(subs.EmailSubscription(NOTIFICATION_EMAIL))
+        generator_fn.configure_async_invoke(
+            on_success=destinations.SnsDestination(notification_topic),
+            on_failure=destinations.SnsDestination(notification_topic),
+        )
 
         # The distribution serves the static site at "/" and the data feed at "/salons" -
         # this rewrites each to the actual S3 key behind it. Any other path (e.g.
